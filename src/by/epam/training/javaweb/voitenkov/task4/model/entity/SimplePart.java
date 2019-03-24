@@ -1,12 +1,17 @@
 package by.epam.training.javaweb.voitenkov.task4.model.entity;
 
+
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import by.epam.training.javaweb.voitenkov.task4.model.entity.entityenum.TextPartType;
 
 /**
  * @author Sergey Voitenkov March 19, 2019 Leaf class
  */
 public class SimplePart extends GeneralText {
-
+				
 	private final static String DEFAULT_VALUE = "Empty Value";
 	private String value;
 	

@@ -25,7 +25,6 @@ public class ParagraphParser extends TextParser {
 			Pattern.compile("^\\s*.*\\{", Pattern.MULTILINE),
 			Pattern.compile("^\\s*.*\\+?.*\\+$", Pattern.MULTILINE),};
 
-	
 	private boolean inCodeBlock;
 
 	private StringBuilder codeBlock ;
@@ -100,42 +99,3 @@ public class ParagraphParser extends TextParser {
 	}
 }
 
-
-/*@Override
-public void fillConteiner(ConteinerPart conteiner, String text) {
-		
-	if (inCodeBlock && text.equals("")) {
-		codeBlock.append("\n");
-	}
-
-	if (!inCodeBlock && text.equals("")) {
-		conteiner.add(new SimplePart("\n",
-				TextPartType.EMPTY_PARAGRAPH));
-	}
-
-	if (isCodeBlock(text)) {
-
-		if (!inCodeBlock) {
-			inCodeBlock = true;
-		}
-		
-		codeBlock.append(text);
-
-	} else {
-		
-		if (inCodeBlock && !text.equals("")) {
-			
-			conteiner.add(new SimplePart(codeBlock.toString(),
-					TextPartType.CODEBLOCK));
-			codeBlock.delete(0, codeBlock.length());
-			inCodeBlock = false;
-		}
-		
-		if (!text.equals("")) {
-			
-			if(super.getNextTextParser() != null) {
-				conteiner.add(super.getNextTextParser().recognize(text));
-			}
-		}
-	}
-}*/

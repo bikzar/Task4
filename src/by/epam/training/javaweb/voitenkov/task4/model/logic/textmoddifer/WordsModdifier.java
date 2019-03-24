@@ -1,5 +1,8 @@
 package by.epam.training.javaweb.voitenkov.task4.model.logic.textmoddifer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import by.epam.training.javaweb.voitenkov.task4.model.entity.ConteinerPart;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.GeneralText;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.SimplePart;
@@ -10,6 +13,12 @@ import by.epam.training.javaweb.voitenkov.task4.model.entity.entityenum.TextPart
  */
 
 public class WordsModdifier {
+
+	private static final Logger LOGER;
+
+	static {
+		LOGER = LogManager.getRootLogger();
+	}
 
 	public static void removeVowels(ConteinerPart conteiner) {
 
@@ -26,8 +35,13 @@ public class WordsModdifier {
 				String removeVowelsPattern = "[aeiouAEIOU]";
 
 				if (tempElement.getPartType() == TextPartType.WORD) {
+					
+					LOGER.debug("removVowels() word befor remove: " + tempElement);
+					
 					tempElement.setValue(tempElement.getValue()
 							.replaceAll(removeVowelsPattern, ""));
+					
+					LOGER.debug("removVowels() word after remove: " + tempElement);
 				}
 			}
 		}
