@@ -3,7 +3,6 @@
  */
 package by.epam.training.javaweb.voitenkov.task4.model.entity;
 
-import by.epam.training.javaweb.voitenkov.task4.model.appinterface.Text;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.entityenum.TextPartType;
 
 /**
@@ -11,20 +10,20 @@ import by.epam.training.javaweb.voitenkov.task4.model.entity.entityenum.TextPart
  * Mar 21, 2019
  */
 
-public abstract class GeneralText implements Text {
+public abstract class GeneralText{
 	
-	private TextPartType partType = TextPartType.EMPTY_TYPE;
+	private TextPartType partType;
 
 	public GeneralText() {
+		partType = TextPartType.EMPTY_TYPE;
 	}
 	
 	public GeneralText(TextPartType textPartType) {
-		if(partType != null) {
+		if(textPartType != null) {
 			this.partType = textPartType;
 		}
 	}
-	
-	
+			
 	public TextPartType getPartType() {
 		return partType;
 	}
@@ -34,4 +33,7 @@ public abstract class GeneralText implements Text {
 			this.partType = partType;
 		}
 	}
+	
+	public abstract GeneralText getClone();
+	public abstract String printOriginaleText();
 }

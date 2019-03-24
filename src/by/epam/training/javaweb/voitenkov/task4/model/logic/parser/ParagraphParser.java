@@ -5,85 +5,87 @@ import java.util.regex.Pattern;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.ConteinerPart;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.SimplePart;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.entityenum.TextPartType;
+import by.epam.training.javaweb.voitenkov.task4.model.logic.validator.validateinterface.Confirming;
 
 /**
  * @author Sergey Voitenkov Mar 20, 2019
  */
-
 public class ParagraphParser extends TextParser {
 
-	private Pattern[] codeBlockPattern = new Pattern[] {
-			Pattern.compile("^\\s*\\w*.\\w*.[=].\\w+",
-					Pattern.MULTILINE),
+	private static Pattern[] codeBlockPattern = new Pattern[] {
+			Pattern.compile("^\\s*.*\\s?=\\s?.*;", Pattern.MULTILINE),
 			Pattern.compile("\\s*import.*\\;$", Pattern.MULTILINE),
-			Pattern.compile(
-					"^\\s*(public|protected|private|while|for|if|switch).*\\(.*\\)[^\\.]\\{?",
-					Pattern.MULTILINE),
+			Pattern.compile("^\\s*(public|protected|private|while|for|if|switch|try).*\\(.*\\)*[^\\.]\\{?", Pattern.MULTILINE),
 			Pattern.compile("^\\s*return.*\\;", Pattern.MULTILINE),
-			Pattern.compile("^\\s*\\}", Pattern.MULTILINE),
+			Pattern.compile("^\\s*.*\\}", Pattern.MULTILINE),
 			Pattern.compile("^\\s*\\@[A-Z]", Pattern.MULTILINE),
 			Pattern.compile("^\\s*.*\\;$", Pattern.MULTILINE),
 			Pattern.compile("^\\s*\\b\\w*\\(\\)", Pattern.MULTILINE),
-			Pattern.compile(
-					"^\\s*[\\/{0,2}, \\/\\*, \\*, \\/\\*{2}, \\*\\/].*",
-					Pattern.MULTILINE) };
+			Pattern.compile("^\\s*(\\*\\/|\\/\\/|\\/\\*{1,2}|\\*)", Pattern.MULTILINE),
+			Pattern.compile("^\\s*.*\\{", Pattern.MULTILINE),
+			Pattern.compile("^\\s*.*\\+?.*\\+$", Pattern.MULTILINE),};
 
-	public ParagraphParser(TextParser nextParser) {
-		super(nextParser);
+	
+	private boolean inCodeBlock;
+
+	private StringBuilder codeBlock ;
+	
+	public ParagraphParser(TextParser nextParser,
+			Confirming validator) {
+		
+		super(nextParser, validator, "\n", TextPartType.TEXT);
+		
+		inCodeBlock = false;
+		codeBlock = new StringBuilder();
+		
 	}
 
 	@Override
-	public ConteinerPart recognize(String text) {
+	public String refactText(String text) {
 
-		ConteinerPart textConteiner = new ConteinerPart(
-				TextPartType.TEXT);
-
-		text = text.replaceAll("\n\n", "**")
+		return text.replaceAll("\n\n", "**")
 				.replaceAll("\n\n\n", "***").replaceAll("\n", "\n\n")
 				.replaceAll("\\*\\*", "\n\n\n")
 				.replaceAll("\\*\\*\\*", "\n\n\n\n");
+	}
 
-		String[] paragraph = text.split("\n");
-
-		StringBuilder codeBlock = new StringBuilder();
-		boolean inCodeBlock = false;
-
-		for (String tempString : paragraph) {
-
-			if (inCodeBlock && tempString.equals("")) {
-				codeBlock.append("\n");
-			}
-
-			if (!inCodeBlock && tempString.equals("")) {
-				textConteiner.add(
-						new SimplePart("\n", TextPartType.PARAGRAPH));
-			}
-
-			if (isCodeBlock(tempString)) {
-
-				if (!inCodeBlock) {
-					inCodeBlock = true;
-				}
-
-				codeBlock.append(tempString);
-
-			} else {
-				if (inCodeBlock && !tempString.equals("")) {
-					textConteiner
-							.add(new SimplePart(codeBlock.toString(),
-									TextPartType.CODEBLOCK));
-					codeBlock.delete(0, codeBlock.length());
-					inCodeBlock = false;
-				}
-				if (!tempString.equals("")) {
-					textConteiner
-							.add(nextParser.recognize(tempString));
-				}
-			}
-
+	@Override
+	public void fillConteiner(ConteinerPart conteiner, String text) {
+			
+		if (inCodeBlock && text.equals("")) {
+			codeBlock.append("\n");
 		}
 
-		return textConteiner;
+		if (!inCodeBlock && text.equals("")) {
+			conteiner.add(new SimplePart("\n",
+					TextPartType.EMPTY_PARAGRAPH));
+		}
+
+		if (isCodeBlock(text)) {
+
+			if (!inCodeBlock) {
+				inCodeBlock = true;
+			}
+			
+			codeBlock.append(text);
+
+		} else {
+			
+			if (inCodeBlock && !text.equals("")) {
+				
+				conteiner.add(new SimplePart(codeBlock.toString(),
+						TextPartType.CODEBLOCK));
+				codeBlock.delete(0, codeBlock.length());
+				inCodeBlock = false;
+			}
+			
+			if (!text.equals("")) {
+				
+				if(super.getNextTextParser() != null) {
+					conteiner.add(super.getNextTextParser().recognize(text));
+				}
+			}
+		}
 	}
 
 	private boolean isCodeBlock(String str) {
@@ -93,6 +95,47 @@ public class ParagraphParser extends TextParser {
 				return true;
 			}
 		}
+		
 		return false;
 	}
 }
+
+
+/*@Override
+public void fillConteiner(ConteinerPart conteiner, String text) {
+		
+	if (inCodeBlock && text.equals("")) {
+		codeBlock.append("\n");
+	}
+
+	if (!inCodeBlock && text.equals("")) {
+		conteiner.add(new SimplePart("\n",
+				TextPartType.EMPTY_PARAGRAPH));
+	}
+
+	if (isCodeBlock(text)) {
+
+		if (!inCodeBlock) {
+			inCodeBlock = true;
+		}
+		
+		codeBlock.append(text);
+
+	} else {
+		
+		if (inCodeBlock && !text.equals("")) {
+			
+			conteiner.add(new SimplePart(codeBlock.toString(),
+					TextPartType.CODEBLOCK));
+			codeBlock.delete(0, codeBlock.length());
+			inCodeBlock = false;
+		}
+		
+		if (!text.equals("")) {
+			
+			if(super.getNextTextParser() != null) {
+				conteiner.add(super.getNextTextParser().recognize(text));
+			}
+		}
+	}
+}*/

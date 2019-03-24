@@ -1,39 +1,37 @@
-/**
- * 
- */
 package by.epam.training.javaweb.voitenkov.task4.model.logic.parser;
 
 import by.epam.training.javaweb.voitenkov.task4.model.entity.ConteinerPart;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.SimplePart;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.entityenum.TextPartType;
+import by.epam.training.javaweb.voitenkov.task4.model.logic.validator.validateinterface.Confirming;
 
 /**
- * @author Sergey Voitenkov Mar 20, 2019 Class wich parses sentence to words
+ * @author Sergey Voitenkov Mar 20, 2019 Class witch parses sentence to words
  */
 
 public class SimplePartParser extends TextParser {
 
-	public SimplePartParser() {
+	public SimplePartParser(Confirming validator) {
+		super(null, validator, "\\*", TextPartType.SENTENCE);
 	}
 
 	@Override
-	public ConteinerPart recognize(String sentenceText) {
+	public String refactText(String text) {
 
-		String tempString = sentenceText.replaceAll("\\.", "*.*")
-				.replaceAll("\\,", "*,*").replaceAll("\\!", "*!*")
-				.replaceAll("\\:", "*:*").replaceAll("\\?", "*?*")
-				.replaceAll("\\,", "*,*").replaceAll("\\–", "*–*")
-				.replaceAll("\\s", "* *");
+		return text.replaceAll("\\.", "*.*").replaceAll("\\,", "*,*")
+				.replaceAll("\\!", "*!*").replaceAll("\\:", "*:*")
+				.replaceAll("\\?", "*?*").replaceAll("\\,", "*,*")
+				.replaceAll("\\–+", "*–*").replaceAll("\\s", "* *")
+				.replaceAll("\\-", "*-*");
+	}
 
-		String[] wordArray = tempString.split("\\*");
+	@Override
+	public void fillConteiner(ConteinerPart conteiner, String text) {
 
-		ConteinerPart conteiner = new ConteinerPart(
-				TextPartType.SENTENCE);
-
-		for (String str : wordArray) {
-			conteiner.add(new SimplePart(str, TextPartType.WORD));
+		if (text.matches("\\w+")) {
+			conteiner.add(new SimplePart(text, TextPartType.WORD));
+		} else {
+			conteiner.add(new SimplePart(text, TextPartType.SIMBOL));
 		}
-
-		return conteiner;
 	}
 }

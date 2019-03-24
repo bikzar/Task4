@@ -1,7 +1,7 @@
 package by.epam.training.javaweb.voitenkov.task4.controller;
 
-import by.epam.training.javaweb.voitenkov.task4.model.appinterface.Text;
-
+import by.epam.training.javaweb.voitenkov.task4.model.entity.ConteinerPart;
+import by.epam.training.javaweb.voitenkov.task4.model.entity.GeneralText;
 import by.epam.training.javaweb.voitenkov.task4.model.logic.parser.ParagraphParser;
 import by.epam.training.javaweb.voitenkov.task4.model.logic.parser.SentenceParser;
 import by.epam.training.javaweb.voitenkov.task4.model.logic.parser.SimplePartParser;
@@ -9,6 +9,8 @@ import by.epam.training.javaweb.voitenkov.task4.model.logic.parser.SimplePartPar
 import by.epam.training.javaweb.voitenkov.task4.model.logic.parser.parserinterface.Parser;
 import by.epam.training.javaweb.voitenkov.task4.model.logic.reader.MyFileReader;
 import by.epam.training.javaweb.voitenkov.task4.model.logic.reader.exception.FileNotFoundParserProjectException;
+import by.epam.training.javaweb.voitenkov.task4.model.logic.textmoddifer.TextModdifier;
+import by.epam.training.javaweb.voitenkov.task4.model.logic.textmoddifer.WordsModdifier;
 import by.epam.training.javaweb.voitenkov.task4.model.logic.validator.Validator;
 
 /**
@@ -26,15 +28,21 @@ public class MainController {
 
 		try {
 
-			if (validator.isValid(fileReader.read())) {
+			SimplePartParser simplePartParser = new SimplePartParser(validator);
+			SentenceParser sentenceParser = new SentenceParser(simplePartParser, validator);
+			
+			ParagraphParser textParser = new ParagraphParser(sentenceParser, validator);
 
-				Parser textParser = new ParagraphParser(
-						new SentenceParser(new SimplePartParser()));
-
-				Text text = textParser.recognize(fileReader.read());
-
-				System.out.println(text);
-			}
+			GeneralText text = textParser
+					.recognize(fileReader.read());
+			
+			//ConteinerPart cont = (ConteinerPart) text;
+			
+			//WordsModdifier.removeVowels(cont);
+			
+			TextModdifier.getBackwardText((ConteinerPart)text);
+			
+			System.out.println(text);
 
 		} catch (FileNotFoundParserProjectException e) {
 			e.printStackTrace();

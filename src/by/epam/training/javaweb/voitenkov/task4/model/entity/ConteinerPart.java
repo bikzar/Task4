@@ -4,16 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import by.epam.training.javaweb.voitenkov.task4.model.appinterface.Text;
 import by.epam.training.javaweb.voitenkov.task4.model.entity.entityenum.TextPartType;
 
 /**
  * @author Sergey Voitenkov March 19, 2019 Composite class
  */
-
 public class ConteinerPart extends GeneralText {
 
-	private Map<Integer, Text> childs;
+	private Map<Integer, GeneralText> childs;
 	private int key;
 
 	{
@@ -22,32 +20,41 @@ public class ConteinerPart extends GeneralText {
 
 	public ConteinerPart() {
 	}
-	
-	public ConteinerPart(TextPartType textPartType){
+
+	public ConteinerPart(TextPartType textPartType) {
 		super(textPartType);
 	}
 
-	public ConteinerPart(Map<Integer, Text> conteinerPart) {
+	public ConteinerPart(Map<Integer, GeneralText> conteinerPart) {
 		if (conteinerPart != null && checkMap()) {
 			childs = conteinerPart;
 		}
 	}
 
 	@Override
-	public void add(Text element) {
+	public ConteinerPart getClone() {
+
+		ConteinerPart resualt = new ConteinerPart(
+				super.getPartType());
+
+		for (GeneralText element : childs.values()) {
+			resualt.add(element.getClone());
+		}
+
+		return resualt;
+	}
+
+	public void add(GeneralText element) {
 		childs.put(key, element);
 		key++;
 	}
 
-	@Override
 	public void removeLast() {
 		childs.remove(key - 1);
 	}
 
-	@Override
-	public Text[] getChild() {
-
-		return null;
+	public HashMap<Integer, GeneralText> getChild() {
+		return (HashMap<Integer, GeneralText>)childs;
 	}
 
 	private boolean checkMap() {
@@ -98,18 +105,37 @@ public class ConteinerPart extends GeneralText {
 		}
 		return true;
 	}
+	
+	public String printOriginaleText() {
+		
+		StringBuilder resualt = new StringBuilder();
+		
+		Integer[] keys = childs.keySet().toArray(new Integer[childs.keySet().size()]);
+		
+		for(int i = 0; i < keys.length; i++) {
+		//for(int i = keys.length-1; i >= 0; i--) { (backward)	
+			GeneralText text = childs.get(i);
+			
+			resualt.append(text.printOriginaleText());
+		}
+		
+		return resualt.toString();
+	}
 
 	@Override
 	public String toString() {
-		
+
 		StringBuilder resualt = new StringBuilder();
 
 		Set<Integer> keySet = childs.keySet();
-		
-		for(Integer index : keySet ) {
-				resualt.append(childs.get(index).toString());
+
+		for (Integer index : keySet) {
+			
+			GeneralText t = childs.get(index);
+			
+			resualt.append(t.toString());
 		}
-		
+
 		return resualt.toString();
 	}
 }
